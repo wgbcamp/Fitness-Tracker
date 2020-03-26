@@ -1,0 +1,27 @@
+<h1 class="title is-1">Current plans:</h1>
+<div class="columns">
+{{#each allresults}}
+<div class="column">
+<div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      {{this}}
+    </p>
+    <a href="#" class="card-header-icon" aria-label="more options">
+      <span class="icon">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+    </a>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec iaculis mauris.
+
+      <br>
+    </div>
+  </div>
+</div>
+</div>
+
+{{/each}}
+</div>
