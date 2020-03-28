@@ -1,5 +1,6 @@
 var db = require("../database/mongo");
 var express = require("express");
+const mongojs = require("mongojs");
 
 var router = express.Router();
 
@@ -53,7 +54,18 @@ router.post("/submit", (req, res)=>{
     })
 })
 
+router.post("/submitActivities", (req, res)=>{
+    console.log(req.body);
 
+    db.plans.update(
+        {
+            _id: mongojs.ObjectId(req.body.mongoID)
+        },
+        {
+            $set: {activities: req.body.activities}
+        }
+    )
+})
 
 
 module.exports = router;

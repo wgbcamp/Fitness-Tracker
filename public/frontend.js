@@ -12,9 +12,11 @@ $(document).ready(function() {
     });
 });
 
+ //variable that will hold the name for newactivities post
+    var name;
+    var mongoID;
 
-  
-
+//post request for submitting a new workout
   $("#newWorkout").click(function(){
 
     $.ajax({
@@ -23,6 +25,7 @@ $(document).ready(function() {
         dataType: "json",
         data: {
             name: $("#workoutTitle").val(),
+            activities: "",
             created: Date.now()
         }
     })
@@ -31,7 +34,29 @@ $(document).ready(function() {
     })
   })
 
+
+  //post request for submitting an activity to the selected workout
+  $("#newActivities").click(function(){
+
+    $.ajax({
+        type: "POST",
+        url: "/submitActivities",
+        dataType: "json",
+        data: {
+            activities: $("#workoutActivities").val(),
+            name: name,
+            mongoID: mongoID
+        }
+    })
+    .then(function(data){
+        console.log(data);
+        alert("Changes to workout have been recorded.")
+    })
+  })
   
+ 
+
+
   //INDEXDB TIME//
 
   //create schema on page load
@@ -44,7 +69,7 @@ $(document).ready(function() {
       
         const TempDataStore = db.createObjectStore("TempData", {keyPath: "itemID"});
   
-        TempDataStore.createIndex("TempIndex", "name");
+        TempDataStore.createIndex("TempIndex", ["name", "mongoID"]);
       };  
 
     request.onsuccess = () => {
@@ -57,9 +82,10 @@ $(document).ready(function() {
         getCursorRequest.onsuccess = e => {
             const cursor = e.target.result;
             if (cursor){
-                const name = cursor.value.name;
+                name = cursor.value.name;
+                mongoID = cursor.value.mongoID;
                 console.log(name);
-                document.getElementById('test').innerHTML = name; 
+                document.getElementById('test').innerHTML = `<br> Add activities for workout:  ${name} (${mongoID})`; 
 
             }
         }
@@ -72,7 +98,10 @@ $(document).ready(function() {
 //clicking a created workout will add the name to the database
   $(".card-header-icon").click(function(){
 
+    //pass id and data attributes into variables
       var x = this.id;
+      var y = document.getElementById(x);
+      var z = y.getAttribute('data');
 
   //create database
   const request = window.indexedDB.open("TempData", 1);
@@ -84,7 +113,7 @@ $(document).ready(function() {
     
       const TempDataStore = db.createObjectStore("TempData", {keyPath: "itemID"});
 
-      TempDataStore.createIndex("TempIndex", "name");
+      TempDataStore.createIndex("TempIndex", ["name", "mongoID"]);
     };
 
     request.onsuccess = () => {
@@ -103,12 +132,11 @@ $(document).ready(function() {
                 if(cursor.value.itemID === '1'){
                     const replace = cursor.value;
                     replace.name = x;
-                    const name = cursor.value.name;
-                    console.log(name);
+                    replace.mongoID = z;
                     cursor.update(replace);
                 } 
             }else{ //add id value from id if none exists
-                TempDataStore.add({ itemID : "1", name: x});
+                TempDataStore.add({ itemID : "1", name: x, mongoID: z});
             }
         }
         //go to edit page
